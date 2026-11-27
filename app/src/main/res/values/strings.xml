@@ -1,3 +1,30 @@
 <resources>
     <string name="app_name">DriveNext</string>
+    <string name="splash_title">DriveNext</string>
+    <string name="splash_subtitle">Поможем найти твою следующую поездку</string>
+    <string name="connection_title">Нет подключения\nк интернету</string>
+    <string name="connection_description">Проверьте подключение и повторите попытку</string>
+    <string name="connection_retry">Повторить попытку</string>
+    <string name="onboarding_title_1">Аренда автомобилей</string>
+    <string name="onboarding_description_1">Открой для себя удобный и доступный способ передвижения</string>
+
+    <string name="onboarding_title_2">Безопасно и удобно</string>
+    <string name="onboarding_description_2">Арендуй автомобиль и наслаждайся его удобством</string>
+
+    <string name="onboarding_title_3">Лучшие предложения</string>
+    <string name="onboarding_description_3">Выбирай понравившиеся среди сотен доступных автомобилей</string>
+
+    <string name="onboarding_skip">Пропустить</string>
+    <string name="onboarding_next">Далее</string>
+    <string name="onboarding_finish">Поехали</string>
+    <string name="auth_login">Войти</string>
+    <string name="auth_register">Зарегистрироваться</string>
+
+    <string name="server_error_title">Не удалось подключиться к серверу</string>
+    <string name="server_error_description">Попробуйте повторить запрос</string>
+
+    <string name="loading">Загрузка</string>
+
+    <string name="dialog_retry">Повторить</string>
+    <string name="dialog_close">Закрыть</string>
 </resources>
