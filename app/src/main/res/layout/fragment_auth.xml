@@ -74,7 +74,7 @@
             android:textSize="@dimen/text_button"
             android:textAllCaps="false"
             android:stateListAnimator="@null"
-            android:enabled="false" />
+            android:enabled="true" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/registerButton"
@@ -91,7 +91,7 @@
             android:textSize="@dimen/text_button"
             android:textAllCaps="false"
             android:stateListAnimator="@null"
-            android:enabled="false" />
+            android:enabled="true" />
 
     </LinearLayout>
 

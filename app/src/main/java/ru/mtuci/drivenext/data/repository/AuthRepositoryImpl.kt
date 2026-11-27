@@ -27,9 +27,11 @@ class AuthRepositoryImpl(
 
                     is SessionStatus.Authenticated -> {
 
-                        auth.retrieveUserForCurrentSession()
-
-                        SessionState.AUTHENTICATED
+                        val user = auth.retrieveUserForCurrentSession()
+                        val token = requireNotNull(auth.currentSessionOrNull()).accessToken
+                        if (ru.mtuci.drivenext.data.remote.ProfileRemote().complete(user.id, token))
+                            SessionState.AUTHENTICATED
+                        else SessionState.NOT_AUTHENTICATED
                     }
 
                     is SessionStatus.NotAuthenticated ->

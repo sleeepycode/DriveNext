@@ -1,6 +1,7 @@
 package ru.mtuci.drivenext
 
 import android.os.Bundle
+import android.content.Intent
 import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +17,7 @@ import kotlinx.coroutines.launch
 import ru.mtuci.drivenext.core.network.NetworkObserver
 import ru.mtuci.drivenext.databinding.ActivityMainBinding
 import ru.mtuci.drivenext.presentation.auth.AuthFragment
+import ru.mtuci.drivenext.presentation.auth.AccountViewModel
 import ru.mtuci.drivenext.presentation.connection.NoConnectionFragment
 import ru.mtuci.drivenext.presentation.connection.ServerErrorFragment
 import ru.mtuci.drivenext.presentation.main.HomeFragment
@@ -29,6 +31,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: StartupViewModel
+    private lateinit var account: AccountViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -61,7 +64,7 @@ class MainActivity : AppCompatActivity() {
                 systemBars.left,
                 systemBars.top,
                 systemBars.right,
-                systemBars.bottom
+                maxOf(systemBars.bottom, insets.getInsets(WindowInsetsCompat.Type.ime()).bottom)
             )
 
             insets
@@ -72,8 +75,34 @@ class MainActivity : AppCompatActivity() {
             StartupViewModelFactory(applicationContext)
         )[StartupViewModel::class.java]
 
+        account = ViewModelProvider(this, AccountViewModel.Factory(applicationContext))[AccountViewModel::class.java]
+        if (savedInstanceState == null) handleAuthIntent(intent)
         observeStartupState()
         observeNetwork()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                account.ui.collect {
+                    if (it.screen == AccountViewModel.Screen.DONE) {
+                        viewModel.authenticated()
+                        account.consumeDone()
+                        java.io.File(cacheDir, "registration_photos").deleteRecursively()
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleAuthIntent(intent)
+    }
+
+    private fun handleAuthIntent(intent: Intent) {
+        val uri = intent.data ?: return
+        if (uri.scheme != "drivenext" || uri.host != "auth") return
+        viewModel.showAuthFlow()
+        account.handleCallback(uri.getQueryParameter("code"), uri.path == "/recovery", uri.getQueryParameter("error") != null)
     }
 
     private fun observeStartupState() {
