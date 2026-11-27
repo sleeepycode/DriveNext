@@ -5,8 +5,8 @@ plugins {
 }
 
 val localProperties = Properties().apply {
-    rootProject.file("local.properties")
-        .inputStream().use { load(it) }
+    val config = rootProject.file("local.properties")
+    if (config.exists()) config.inputStream().use { load(it) }
 }
 
 android {
@@ -26,13 +26,13 @@ android {
         buildConfigField(
             "String",
             "SUPABASE_URL",
-            "\"${localProperties.getProperty("SUPABASE_URL")}\""
+            "\"${localProperties.getProperty("SUPABASE_URL", "https://example.supabase.co")}\""
         )
 
         buildConfigField(
             "String",
             "SUPABASE_KEY",
-            "\"${localProperties.getProperty("SUPABASE_KEY")}\""
+            "\"${localProperties.getProperty("SUPABASE_KEY", "")}\""
         )
     }
 

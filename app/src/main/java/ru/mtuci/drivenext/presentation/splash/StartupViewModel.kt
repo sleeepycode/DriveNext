@@ -28,6 +28,7 @@ class StartupViewModel(
     private var startupJob: Job? = null
 
     var onboardingPage: Int = 0
+    private var resumeAuth = false
 
     init {
         checkStartupState(initialLaunch = true)
@@ -80,6 +81,7 @@ class StartupViewModel(
     fun onNetworkChanged(isAvailable: Boolean) {
 
         if (!isAvailable) {
+            if (_state.value == StartupState.AUTH) resumeAuth = true
 
             startupJob?.cancel()
             startupJob = null
@@ -90,12 +92,33 @@ class StartupViewModel(
             _state.value == StartupState.NO_CONNECTION
         ) {
 
-            checkStartupState()
+            if (resumeAuth) {
+                resumeAuth = false
+                _state.value = StartupState.AUTH
+            } else checkStartupState()
         }
     }
 
+    fun showAuthFlow() {
+        startupJob?.cancel()
+        startupJob = null
+        if (checkInternet()) _state.value = StartupState.AUTH
+        else { resumeAuth = true; _state.value = StartupState.NO_CONNECTION }
+    }
+
+    fun authenticated() {
+        startupJob?.cancel()
+        startupJob = null
+        resumeAuth = false
+        if (checkInternet()) _state.value = StartupState.MAIN
+        else _state.value = StartupState.NO_CONNECTION
+    }
+
     fun retryConnection() {
-        checkStartupState()
+        if (resumeAuth && checkInternet()) {
+            resumeAuth = false
+            _state.value = StartupState.AUTH
+        } else checkStartupState()
     }
 
     fun finishOnboarding() {

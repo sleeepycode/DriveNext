@@ -13,7 +13,11 @@ object SupabaseProvider {
             supabaseUrl = BuildConfig.SUPABASE_URL,
             supabaseKey = BuildConfig.SUPABASE_KEY
         ) {
-            install(Auth)
+            install(Auth) {
+                scheme = "drivenext"
+                host = "auth"
+                flowType = enumValueOf("PKCE")
+            }
         }
     }
 }
