@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+
+    <color name="primary">#2A1246</color>
+    <color name="primary_dark">#1C0D30</color>
+    <color name="background">#FFFFFF</color>
+
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#1A1A1A</color>
+    <color name="text_muted">#B3000000</color>
+
+    <color name="indicator_active">#2A1246</color>
+    <color name="indicator_inactive">#E4E7EC</color>
+
+    <color name="button_text">#FFFFFF</color>
+    <color name="button_ripple">#26FFFFFF</color>
+
 </resources>
