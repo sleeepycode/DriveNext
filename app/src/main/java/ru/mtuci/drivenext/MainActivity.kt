@@ -21,6 +21,7 @@ import ru.mtuci.drivenext.presentation.auth.AccountViewModel
 import ru.mtuci.drivenext.presentation.connection.NoConnectionFragment
 import ru.mtuci.drivenext.presentation.connection.ServerErrorFragment
 import ru.mtuci.drivenext.presentation.main.HomeFragment
+import ru.mtuci.drivenext.presentation.main.CatalogViewModel
 import ru.mtuci.drivenext.presentation.onboarding.OnboardingFragment
 import ru.mtuci.drivenext.presentation.splash.SplashFragment
 import ru.mtuci.drivenext.presentation.splash.StartupState
@@ -77,6 +78,19 @@ class MainActivity : AppCompatActivity() {
 
         account = ViewModelProvider(this, AccountViewModel.Factory(applicationContext))[AccountViewModel::class.java]
         if (savedInstanceState == null) handleAuthIntent(intent)
+        val catalog = ViewModelProvider(this, CatalogViewModel.Factory(applicationContext))[CatalogViewModel::class.java]
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                catalog.ui.collect { ui ->
+                    if (ui.signedOut) {
+                        account.consumeDone()
+                        account.navigate(AccountViewModel.Screen.LOGIN)
+                        catalog.consumeSignOut()
+                        viewModel.showAuthFlow()
+                    }
+                }
+            }
+        }
         observeStartupState()
         observeNetwork()
         lifecycleScope.launch {
