@@ -34,6 +34,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private var settings: FragmentSettingsBinding? = null
     private var profile: FragmentProfileBinding? = null
     private var destination: FragmentCatalogDestinationBinding? = null
+    private var rentalViews: RentalViews? = null
     private var adapter: CarAdapter? = null
     private var updatingSearch = false
     private var updatingNav = false
@@ -77,24 +78,27 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val list = screen == CatalogViewModel.Screen.HOME || screen == CatalogViewModel.Screen.SEARCH
         val previousList = previous == CatalogViewModel.Screen.HOME || previous == CatalogViewModel.Screen.SEARCH
         if (previous != screen && !(list && previousList)) {
+            rentalViews?.close(); rentalViews = null
             b.catalogContent.removeAllViews()
             catalog = null; settings = null; profile = null; destination = null; adapter = null; renderedAvatar = null
             when (screen) {
                 CatalogViewModel.Screen.HOME, CatalogViewModel.Screen.SEARCH -> buildCatalog(b)
                 CatalogViewModel.Screen.SETTINGS -> buildSettings(b)
                 CatalogViewModel.Screen.PROFILE -> buildProfile(b)
-                else -> buildDestination(b)
+                CatalogViewModel.Screen.ADD_CAR -> buildDestination(b)
+                else -> rentalViews = RentalViews(layoutInflater, b.catalogContent, vm, screen)
             }
         }
         shown = screen
         updatingNav = true
         val tab = when (screen) {
-            CatalogViewModel.Screen.SETTINGS, CatalogViewModel.Screen.PROFILE, CatalogViewModel.Screen.BOOKINGS, CatalogViewModel.Screen.ADD_CAR -> R.id.lab3_settings
+            CatalogViewModel.Screen.SETTINGS, CatalogViewModel.Screen.PROFILE, CatalogViewModel.Screen.BOOKINGS, CatalogViewModel.Screen.BOOKING_DETAILS, CatalogViewModel.Screen.ADD_CAR -> R.id.lab3_settings
             CatalogViewModel.Screen.SAVED -> R.id.lab3_saved
             else -> R.id.lab3_home
         }
         if (b.bottomNavigation.selectedItemId != tab) b.bottomNavigation.selectedItemId = tab
         updatingNav = false
+        b.bottomNavigation.isVisible = screen !in listOf(CatalogViewModel.Screen.RENT, CatalogViewModel.Screen.SUCCESS, CatalogViewModel.Screen.BOOKINGS, CatalogViewModel.Screen.BOOKING_DETAILS)
         b.bottomNavigation.menu.setGroupEnabled(0, !ui.busy || list)
         b.catalogProgress.isVisible = ui.busy
         b.catalogError.isVisible = ui.error != null
@@ -131,22 +135,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             p.profileLogout.isEnabled = !ui.busy
             showAvatar(p.profileAvatar, ui.avatar)
         }
+        rentalViews?.render(ui)
         destination?.let { d ->
-            d.destinationTitle.text = when (screen) {
-                CatalogViewModel.Screen.SAVED -> "Избранное"
-                CatalogViewModel.Screen.BOOKINGS -> "Мои бронирования"
-                CatalogViewModel.Screen.ADD_CAR -> "Подключить свой автомобиль"
-                CatalogViewModel.Screen.RENT -> "Оформление аренды"
-                else -> "Детали"
-            }
-            val car = ui.selected.takeIf { screen == CatalogViewModel.Screen.RENT || screen == CatalogViewModel.Screen.DETAILS }
-            d.destinationCar.isVisible = car != null
-            d.destinationImage.isVisible = car != null
-            if (car != null) {
-                d.destinationCar.text = "${car.brand} ${car.model}\n${car.dailyPrice} ₽ / день · ${car.transmission} · ${car.fuel}"
-                d.destinationImage.setImageResource(CarAdapter.image(car.imageKey))
-            }
-            d.destinationMessage.text = if (screen == CatalogViewModel.Screen.ADD_CAR) "Экран следующей лабораторной работы." else "Функциональность будет реализована в лабораторной работе №4."
+            d.destinationTitle.text = "Подключить свой автомобиль"
+            d.destinationCar.isVisible = false; d.destinationImage.isVisible = false
+            d.destinationMessage.text = "Экран следующей лабораторной работы."
         }
         if (ui.error == null) displayedError = null
         if (ui.error != null && ui.error != displayedError && dialog?.isShowing != true) {
@@ -212,6 +205,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
     override fun onDestroyView() {
         dialog?.dismiss(); dialog = null
+        rentalViews?.close(); rentalViews = null
         catalog?.carList?.adapter = null
         catalog = null; settings = null; profile = null; destination = null; adapter = null
         binding = null; shown = null; renderedAvatar = null; displayedError = null

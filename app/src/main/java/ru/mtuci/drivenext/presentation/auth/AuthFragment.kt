@@ -175,6 +175,9 @@ class AuthFragment : Fragment(R.layout.fragment_account_host) {
 
     private fun field(form: View, id: Int, value: String, update: (String) -> Unit) {
         val edit = form.findViewById<EditText>(id)
+        if (id in listOf(R.id.lastNameField, R.id.firstNameField, R.id.middleNameField)) {
+            edit.imeHintLocales = android.os.LocaleList.forLanguageTags("ru-RU,en-US")
+        }
         edit.setText(value)
         edit.doAfterTextChanged { update(it.toString()); updateEnabled(form) }
     }
